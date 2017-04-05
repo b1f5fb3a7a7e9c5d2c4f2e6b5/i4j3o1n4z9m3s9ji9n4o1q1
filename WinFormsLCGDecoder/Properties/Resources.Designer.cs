@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WinFormsLCGDecoder.Properties {
+namespace WinFormsMappingDecoder.Properties {
     using System;
     
     
@@ -61,7 +61,8 @@ namespace WinFormsLCGDecoder.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Вы уверены, что хотите выйти?
+        ///   Ищет локализованную строку, похожую на [RU] Вы действительно хотите выйти?
+        ///[EU] Do you really want to leave?
         ///{0}.
         /// </summary>
         internal static string Home_OnFormClosing_ {

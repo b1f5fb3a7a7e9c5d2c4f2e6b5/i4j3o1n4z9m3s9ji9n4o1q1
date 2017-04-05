@@ -7,60 +7,57 @@ namespace WinFormsLCGDecoder
 {
     internal class HomeData
     {
-        private Dictionary<string, double> Data { get; } = new Dictionary<string, double>();
+        private Dictionary<string, Int64> Data { get; } = new Dictionary<string, Int64>();
 
-        internal string GetData()
-        {
-            if (Data == null) throw new Exception("Необходимо выполнить метод [SetData(string text)]");
-            return GetAnalysis();
-        }
-
-        internal string Analysis_2(string sentence)
+        internal string AnalysisBruteforce(Home home, string sentence)
         {
             var text = sentence.Split('\n');
             if (text.Length < 3) return null;
 
             var result = string.Empty;
-            Data.Clear();
 
-            const int m = 1000000; // Значения M - 10^6
+            const Int64 m = 1000000; // Значения M - 10^6
 
             // Три числа подряд из файла
-            var x = double.Parse(text[0]);
-            var xn = double.Parse(text[1]);
-            var xnn = double.Parse(text[2]);
+            Int64 x = Int64.Parse(text[0]);
+            Int64 xn = Int64.Parse(text[1]);
+            Int64 xnn = Int64.Parse(text[2]);
+
+            Int64 A = 0;
+            Int64 C = 0;
 
             var sWatch = new Stopwatch();
             sWatch.Start();
 
             var found = false;
 
-            var a = 0;
-            var c = 0;
-
-            for (; a < m; a++)
+            for (Int64 a = 0; a < m; a++)
             {
-                for (; c < m; c++)
+                for (Int64 c = 0; c < m; c++)
                     if ((a * x + c) % m == xn && (a * xn + c) % m == xnn)
                     {
+                        A = a;
+                        C = c;
+
                         found = true;
                         break;
                     }
 
+                home.SetStatusInvoke();
                 if (found) break;
             }
                 
 
             if (found)
             {
-                result += $"Найдено!\na = {a}\nc = {c}\nПроверено вариантов: {a * c}\n";
+                result += $"Найдено!\nA = {A}\nC = {C}\nПроверено вариантов: {A * C}\n";
                 result += $"Текущие значения:\n{x}\n{xn}\n{xnn}\n";
                 result += $"Следующие 10 значений:\n";
 
                 x = xnn;
                 for (var i = 0; i < 10; i++)
                 {
-                    x = (a * x + c) % m;
+                    x = (A * x + C) % m;
                     result += $"{x}\n";
                 }
             }
@@ -70,33 +67,34 @@ namespace WinFormsLCGDecoder
             }
                 
             sWatch.Stop();
-            result += $"Время выполнения! {sWatch.ElapsedMilliseconds}";
+            result += $"Время выполнения: {sWatch.ElapsedMilliseconds} Milliseconds\n";
 
             return result;
         }
 
-        internal string Analysis(string sentence)
+        internal string AnalysisJamesReeds(string sentence)
         {
+            
             var text = sentence.Split('\n');
             if (text.Length < 3) return null;
 
             var result = string.Empty;
             Data.Clear();
 
-            var m = Math.Pow(10, 6);          // Значения M - 10^6
+            Int64 m = 1000000;          // Значения M - 10^6
 
-            var x = double.Parse(text[0]);
-            var xn = double.Parse(text[1]);
-            var xnn = double.Parse(text[2]);
+            Int64 x = Int64.Parse(text[0]);
+            Int64 xn = Int64.Parse(text[1]);
+            Int64 xnn = Int64.Parse(text[2]);
 
             var sWatch = new Stopwatch();
             sWatch.Start();
 
-            for (int i = 0, a = 0; a < m && i < 10; a++)
+            for (Int64 i = 0, a = 0; a < m && i < 10; a++)
             {
                 if ((m * a + (xnn - xn)) / (xn - x) % 1 != 0) continue;
 
-                var c = xn - x * a % m;
+                Int64 c = xn - x * a % m;
                 if (c > m) continue;
 
                 if ((a * x + c) % m != xn) continue;
@@ -109,8 +107,18 @@ namespace WinFormsLCGDecoder
             }
 
             sWatch.Stop();
-            result += $"Время выполнения! {sWatch.ElapsedMilliseconds}";
+            result += $"Время выполнения: {sWatch.ElapsedMilliseconds} Milliseconds\n";
             result += GetAnalysis();
+
+            result += $"Текущие значения:\n{x}\n{xn}\n{xnn}\n";
+            result += $"Следующие 10 значений:\n";
+
+            x = xnn;
+            for (var i = 0; i < 10; i++)
+            {
+                x = ( Data["A0"] * x + Data["C0"]) % m;
+                result += $"{x}\n";
+            }
 
             return result;
         }

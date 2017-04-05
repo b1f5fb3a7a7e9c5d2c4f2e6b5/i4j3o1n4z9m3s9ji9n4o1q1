@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 using WinFormsLCGDecoder.Properties;
+using WinFormsMappingDecoder.Properties;
 
 namespace WinFormsLCGDecoder
 {
@@ -29,7 +31,7 @@ namespace WinFormsLCGDecoder
             base.OnFormClosing(e);
 
             if (e.CloseReason == CloseReason.WindowsShutDown ||
-                MessageBox.Show(string.Format(Resources.Home_OnFormClosing_, Text), //Text - base.Text
+                MessageBox.Show(string.Format(Resources.Home_OnFormClosing_, base.Text), //Text - base.Text
                     @"Внимание", MessageBoxButtons.YesNo) == DialogResult.Yes) return;
 
             e.Cancel = true;
@@ -84,7 +86,26 @@ namespace WinFormsLCGDecoder
 
         private void AnalysisMenu_Click(object sender, EventArgs e)
         {
-            textBoxInfo.Text += _data.Analysis_2(textBox.Text);
+            //var thread = new Thread(ThreadAnalysisBruteforce);
+            //thread.Start();
+            textBoxInfo.Text += _data.AnalysisJamesReeds(textBox.Text);
+        }
+
+        private void ThreadAnalysisBruteforce()
+        {
+            Invoke((Action)(() =>
+            {
+                textBoxInfo.Text += _data.AnalysisBruteforce(this, textBox.Text);
+            }));
+        }
+
+        internal void SetStatusInvoke()
+        {
+            Invoke((Action)(() =>
+            {
+                Int64 result;
+                statusLabel.Text = Int64.TryParse(statusLabel.Text, out result) ? (result + 1).ToString() : "1";
+            }));
         }
     }
 }
